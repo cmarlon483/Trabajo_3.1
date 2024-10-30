@@ -1,56 +1,68 @@
 package Fes.aragon;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
-class BankSimulation {
-    static Random rd = new Random();
-    static int Option(int porciento[]) { //no supe si moverle
-        int i = 0, porc, eleccion = Math.abs(rd.nextInt()) % 100 + 1;
-        for (porc = porciento[0]; porc < eleccion; porc += porciento[i++]);
-        return i;
+public class BankSimulator {
+    static Random aleatorio = new Random();
+
+    static int opcion(int porcentajes[]) {
+        int acumulado = 0;
+        int eleccion = aleatorio.nextInt(100) + 1;
+        for (int i = 0; i < porcentajes.length; i++) {
+            acumulado += porcentajes[i];
+            if (eleccion <= acumulado) {
+                return i;
+            }
+        }
+        return porcentajes.length - 1; // por defecto al último si no se elige ninguno
     }
 
     public static void main(String args[]) {
-        int[] llegada= {15,20,25,10,30};
-        int[] servicio = {0,0,0,10,5,10,10,0,15,25,10,15};
-        int[] empleados= {0,0,0,0};
-        int numEmpleados = empleados.length;
-        int clientes, i, t, numMinutos = 100, x;
-        double esperaMax = 0.0, libre = 0.0, esperaActual = 0.0;
-        Queue simulacion = new Queue();
+        int[] llegadas = {15, 20, 25, 10, 30};
+        int[] servicio = {0, 0, 0, 10, 5, 10, 10, 0, 15, 25, 10, 15};
+        int[] oficinistas = {0, 0, 0, 0};
+        int numOficinistas = oficinistas.length;
+        int clientes, tiempo, minutosSimulacion = 40, x;
+        double maxEspera = 0.0, huboFila = 0.0, esperaActual = 0.0;
+        Queue<Integer> colaSimulacion = new LinkedList<>();
 
-        System.out.print("t = ");
-        for (t = 0; t < numMinutos; t++) {
-            System.out.print(t + " ");
-            for (i = 0; i < numEmpleados; i++) {
-                if (empleados[i] < 60)
-                    empleados[i] += 1;   // con máximo de 60 segundos del tiempo faltante para que el cajero atienda al cliente actual;
-                else empleados[i] = 0;   // al cliente actual;
+        System.out.print("tiempo = ");
+        for (tiempo = 0; tiempo < minutosSimulacion; tiempo++) {
+            System.out.print(tiempo + " ");
+            for (int i = 0; i < numOficinistas; i++) {
+                oficinistas[i] = Math.min(oficinistas[i] + 1, 60);
             }
-            clientes = Option(llegada); //<----
-            for (i = 0; i < clientes; i++) {   // inserta todos los clientes nuevos al final
-                x = Option(servicio) * 10;  //<----    // (o el tiempo de servicio que requieren);
-                simulacion.enqueue(new Integer(x));
+
+            clientes = opcion(llegadas);
+            for (int i = 0; i < clientes; i++) {
+                x = opcion(servicio) * 10;
+                colaSimulacion.add(x);
                 esperaActual += x;
             }
-            // extrae los clientes cuando los cajeros están disponibles:
-            for (i = 0; i < numEmpleados && !simulacion.isEmpty(); ) {
-                if (empleados[i] < 60) {
-                    x = ((Integer) simulacion.dequeue()).intValue();
-                    empleados[i] += x;   // a un cajero si el tiempo de servicio aún es menor que 60 segundos;
+
+            for (int i = 0; i < numOficinistas && !colaSimulacion.isEmpty(); ) {
+                if (oficinistas[i] == 60) {
+                    x = colaSimulacion.poll();
+                    oficinistas[i] = x;
                     esperaActual -= x;
+                } else {
+                    i++;
                 }
-                else i++;
             }
-            if (!simulacion.isEmpty()) {
-                libre++;
-                System.out.print(" espera = " + ((long)(esperaActual/6.0)) / 10.0);
-                if (esperaMax < esperaActual)
-                    esperaMax = esperaActual;
-            } else System.out.print(" espera = 0;");
+
+            if (!colaSimulacion.isEmpty()) {
+                huboFila++;
+                System.out.print(" El cliente espero = " + ((long) (esperaActual / 6.0)) / 10.0);
+                maxEspera = Math.max(maxEspera, esperaActual);
+            } else {
+                System.out.print(" El cliente espero = 0");
+            }
         }
-        System.out.println("\nFor " + numEmpleados + " cajeros, había una fila "
-                + libre/numMinutos*100.0 + "% del tiempo;\n"
-                + "el tiempo de espera máximo fue " + esperaMax/60.0 + " min.");
+
+        System.out.println("\nPara " + numOficinistas + " oficinistas, hubo una fila el "
+                + huboFila / minutosSimulacion * 100.0 + "% del tiempo;\n"
+                + "El tiempo máximo de espera fue " + maxEspera / 60.0 + " minutos.");
     }
 }
