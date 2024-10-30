@@ -7,68 +7,68 @@ import java.util.Stack;
         public static final int MAXCOLS = 80;
 
         public static void main(String[] args) {
-            char[] infix = new char[MAXCOLS];
-            char[] postfix = new char[MAXCOLS];
+            char[] infija = new char[MAXCOLS];
+            char[] posfija = new char[MAXCOLS];
             int pos = 0;
 
             // Leer la expresión infija desde la entrada
             Scanner scanner = new Scanner(System.in);
             System.out.println("Introduce la expresión infija: ");
-            String expression = scanner.nextLine();
-            infix = expression.toCharArray();
+            String expresion = scanner.nextLine();
+            infix = expresion.toCharArray();
 
             // Llamada a la función que convierte a notación postfija
 
-            convertToPostfix(infix, postfix);
+            convertirAPosfija(infija, posfija);
 
             // Mostrar el resultado
-            System.out.printf("La expresión infija original es: %s\n", new String(infix).trim());
-            System.out.printf("La expresión postfija es: %s\n", new String(postfix).trim());
+            System.out.printf("La expresión infija original es: %s\n", new String(infija).trim());
+            System.out.printf("La expresión postfija es: %s\n", new String(posfija).trim());
 
             scanner.close();
         }
 
         // Método que convierte una expresión infija a postfija
-        public static void convertToPostfix(char[] infix, char[] postfix) {
-            int position = 0, outpos = 0;
-            char symb;
-            Stack<Character> opstk = new Stack<>();
+        public static void convertirAPosfija(char[] infija, char[] posfija) {
+            int posicion = 0, salidaPos = 0;
+            char simbolo;
+            Stack<Character> pila = new Stack<>();
 
-            for (position = 0; position < infix.length && infix[position] != '\0'; position++) {
-                symb = infix[position];
+            for (posicion = 0; posicion < infija.length && infija[posicion] != '\0'; posicion++) {
+                simbolo = infija[posicion];
 
-                if (isOperand(symb)) {
-                    postfix[outpos++] = symb;
-                } else if (symb == '(') {
-                    opstk.push(symb);
-                } else if (symb == ')') {
-                    while (!opstk.isEmpty() && opstk.peek() != '(') {
-                        postfix[outpos++] = opstk.pop();
+                if (isOperand(simbolo)) {
+                    postfija[saliapos++] = simbolo;
+                } else if (simbolo == '(') {
+                    pila.push(simbolo);
+                } else if (simbolo == ')') {
+                    while (!pila.isEmpty() && pila.peek() != '(') {
+                        posfija[salidapos++] = pila.pop();
                     }
-                    opstk.pop(); // Sacar el '('
+                    pila.pop(); // Sacar el '('
                 } else {
-                    while (!opstk.isEmpty() && precedence(opstk.peek()) >= precedence(symb)) {
-                        postfix[outpos++] = opstk.pop();
+                    while (!pila.isEmpty() && precedence(pila.peek()) >= precedence(simbolo)) {
+                        posfija[salidapos++] = pila.pop();
                     }
-                    opstk.push(symb);
+                    pila.push(simbolo);
                 }
             }
 
-            while (!opstk.isEmpty()) {
-                postfix[outpos++] = opstk.pop();
+            while (!pila.isEmpty()) {
+                postfija[salidapos++] = pila.pop();
             }
 
             // Agregar fin de cadena
-            postfix[outpos] = '\0';
+            postfija[salidapos] = '\0';
         }
 
         // Método para verificar si es un operando
-        public static boolean isOperand(char c) {
+        public static boolean esOperando(char c) {
             return Character.isLetterOrDigit(c);
         }
 
         // Método para definir la precedencia de los operadores
-        public static int precedence(char c) {
+        public static int precendencia(char c) {
             switch (c) {
                 case '+':
                 case '-':
