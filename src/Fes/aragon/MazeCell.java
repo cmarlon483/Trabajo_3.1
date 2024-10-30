@@ -1,3 +1,4 @@
+
 package Fes.aragon;
 
 import java.io.*;
@@ -39,24 +40,24 @@ public class MazeCell {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        MazeCell cell = (MazeCell) obj;
+        MazeCell cell = (MazeCell) obj; //aqui no supe si moverle o no
         return x == cell.x && y == cell.y;
     }
 }
 
 class Maze {
-    private int rows = 0;
-    private int cols = 0;
-    private char[][] store;
-    private MazeCell currentCell, exitCell = new MazeCell(), entryCell = new MazeCell();
-    private final char exitMarker = 'e', entryMarker = 'm', visited = '.';
-    private final char passage = '0', wall = '1';
+    private int filas = 0;
+    private int columnas = 0;
+    private char[][] memoria;
+    private MazeCell CeldaActual, salida = new MazeCell(), entrada = new MazeCell(); //lo mismo
+    private final char marcadorSalida = 'e', marcadorEntrada = 'm', visitado = '.';
+    private final char camino = '0', muro = '1';
     private Stack<MazeCell> mazeStack = new Stack<>();
 
     public Maze() {
-        int row = 0;
-        int col = 0;
-        Stack<String> mazeRows = new Stack<>();
+        int filas = 0;
+        int columnas = 0;
+        Stack<String> filasLab = new Stack<>();
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader buffer = new BufferedReader(isr);
         System.out.println("Introduzca un laberinto rectangular utilizando los caracteres "
@@ -64,80 +65,80 @@ class Maze {
                 + "Introduce una línea a la vez; termine con Ctrl-z:");
 
         try {
-            String str = buffer.readLine();
-            while (str != null) {
-                row++;
-                cols = str.length();
-                str = "1" + str + "1"; // pone 1 en las celdas del borde
-                mazeRows.push(str);
-                if (str.indexOf(exitMarker) != -1) {
-                    exitCell.x = row;
-                    exitCell.y = str.indexOf(exitMarker);
+            String lab = buffer.readLine();
+            while (lab != null) {
+                filas++;
+                columna = lab.length();
+                lab = "1" + lab + "1"; // pone 1 en las celdas del borde
+                mazeRows.push(lab); //lo mismo
+                if (laberinto.indexOf(marcadorSalida) != -1) {
+                    salida.x = fila;
+                    salida.y = lab.indexOf(marcadorSalida);
                 }
-                if (str.indexOf(entryMarker) != -1) {
-                    entryCell.x = row;
-                    entryCell.y = str.indexOf(entryMarker);
+                if (lab.indexOf(marcadorEntrada) != -1) {
+                    entrada.x = fila;
+                    entrada.y = lab.indexOf(marcadorEntrada);
                 }
-                str = buffer.readLine();
+                lab = buffer.readLine();
             }
-        } catch (IOException eof) {
-            System.out.println("Error de entrada: " + eof.getMessage());
+        } catch (IOException errorDeEntrada) { //anteriormnte "eof"
+            System.out.println("Error de entrada: " + errorDeEntrada.getMessage());
         }
 
-        rows = row;
-        store = new char[rows + 2][cols + 2]; // crea un arreglo 1D de arreglos char
-        store[0] = new char[cols + 2]; // una fila de borde
-        for (; !mazeRows.isEmpty(); row--) {
-            store[row] = mazeRows.pop().toCharArray();
+        filas = fila;
+        memoria = new char[filas + 2][columnas + 2]; // crea un arreglo 1D de arreglos char
+        memoria[0] = new char[columnas + 2]; // una fila de borde
+        for (; !mazeRows.isEmpty(); fila--) {//lo mismo
+            memoria[fila] = mazeRows.pop().toCharArray();
         }
-        store[rows + 1] = new char[cols + 2]; // otra fila de borde
+        memoria[filas + 1] = new char[columnas + 2]; // otra fila de borde
 
-        for (col = 0; col <= cols + 1; col++) {
-            store[0][col] = wall; // llena las filas de borde con 1
-            store[rows + 1][col] = wall;
+        for (columna = 0; columna <= columnas + 1; columna++) {
+            memoria[0][col] = muro; // llena las filas de borde con 1
+            memoria[filas + 1][columna] = muro;
         }
     }
 
-    private void display(PrintStream out) {
-        for (int row = 0; row <= rows + 1; row++) {
-            out.println(store[row]);
+    private void imprimir(PrintStream out) {
+        for (int fila = 0; fila <= filas + 1; fila++) {
+            out.println(memoria[fila]);
         }
         out.println();
     }
 
-    private void pushUnvisited(int row, int col) {
-        if (store[row][col] == passage || store[row][col] == exitMarker)
-            mazeStack.push(new MazeCell(row, col));
+    private void noVisitado(int fila, int columna) {
+        if (memoria[fila][columna] == camino || memoria[fila][columna] == marcadorSalida)
+            mazeStack.push(new MazeCell(fila, columna));//lo mismo
     }
 
     public void exitMaze(PrintStream out) {
-        currentCell = entryCell;
+        celdaAcutal = entrada;
         out.println();
 
-        while (!currentCell.equals(exitCell)) {
-            int row = currentCell.x;
-            int col = currentCell.y;
-            display(out); // imprime una imagen instantánea
-            if (!currentCell.equals(entryCell))
-                store[row][col] = visited;
-            pushUnvisited(row - 1, col); // arriba
-            pushUnvisited(row + 1, col); // abajo
-            pushUnvisited(row, col - 1); // izquierda
-            pushUnvisited(row, col + 1); // derecha
+        while (!celdaActua.equals(salida)) {
+            int fila = celdaActual.x;
+            int columna = celdaActual.y;
+            imprimir(out); // imprime una imagen instantánea
+            if (!celdaActual.equals(entrada))
+                memoria[fila][columna] = visitado;
+            noVisitado(fila - 1, columna); // arriba
+            noVisitado(fila + 1, columna); // abajo
+            noVisitado(fila, columna - 1); // izquierda
+            noVisitado(fila, columna + 1); // derecha
 
-            if (mazeStack.isEmpty()) {
-                display(out);
+            if (mazeStack.isEmpty()) { //tampoco supe si moverle
+                imrpimir(out);
                 out.println("Intento fallido");
                 return;
             } else {
-                currentCell = mazeStack.pop();
+                celdaActual = mazeStack.pop(); // lo mismo
             }
         }
-        display(out);
+        imprimir(out);
         out.println("Intento exitoso");
     }
 
     public static void main(String[] args) {
-        (new Maze()).exitMaze(System.out);
+        (new Maze()).exitMaze(System.out);//lo mismo
     }
 }
